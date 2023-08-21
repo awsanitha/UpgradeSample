@@ -1,0 +1,12 @@
+﻿
+<h2>Upload Document</h2>
+
+@using (Html.BeginForm("UploadDocument", "Documents", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="form-group">
+        <label for="fileInput">Select a Document:</label>
+        <input type="file" name="fileInput" id="fileInput" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Upload</button>
+}

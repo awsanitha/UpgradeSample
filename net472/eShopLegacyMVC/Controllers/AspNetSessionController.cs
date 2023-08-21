@@ -1,7 +1,7 @@
 ﻿using eShopLegacy.Models;
 using System.Web.Mvc;
 
-namespace eShopLegacyMVCCore.Controllers
+namespace eShopLegacyMVC.Controllers
 {
     public class AspNetSessionController : Controller
     {
