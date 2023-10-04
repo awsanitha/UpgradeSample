@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
+using System.Messaging;
 using System.Net;
 using System.Web.Mvc;
 using eShopLegacyMVC.Models;
@@ -65,12 +67,28 @@ namespace eShopLegacyMVC.Controllers
             if (ModelState.IsValid)
             {
                 service.CreateCatalogItem(catalogItem);
+                QueueItemCreatedMessage(catalogItem);
                 return RedirectToAction("Index");
             }
 
             ViewBag.CatalogBrandId = new SelectList(service.GetCatalogBrands(), "Id", "Brand", catalogItem.CatalogBrandId);
             ViewBag.CatalogTypeId = new SelectList(service.GetCatalogTypes(), "Id", "Type", catalogItem.CatalogTypeId);
             return View(catalogItem);
+        }
+
+        private void QueueItemCreatedMessage(CatalogItem catalogItem)
+        {
+            using (var queue = new MessageQueue(ConfigurationManager.AppSettings["NewItemQueuePath"]))
+            {
+                var message = new Message
+                {
+                    Formatter = new XmlMessageFormatter(new[] { typeof(CatalogItem) }),
+                    Body = catalogItem,
+                    Label = "New catalog item"
+                };
+
+                queue.Send(message);
+            }
         }
 
         // GET: Catalog/Edit/5
