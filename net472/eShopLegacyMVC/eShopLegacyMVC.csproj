@@ -267,6 +267,7 @@
     <Compile Include="Services\FileService.cs" />
     <Compile Include="Services\FileServiceConfiguration.cs" />
     <Compile Include="Services\ICatalogService.cs" />
+    <Compile Include="Services\WeatherService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
