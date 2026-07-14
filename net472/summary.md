@@ -2,7 +2,7 @@
 
 ## Result
 
-`dotnet build eShopLegacyMVC.sln` → **Build succeeded, 0 errors**.
+`dotnet build eShopLegacyMVC.sln` → **Build succeeded, 0 warnings, 0 errors**.
 
 All three projects now target `net10.0`:
 - `eShopLegacy.Common` → `net10.0`
@@ -101,26 +101,23 @@ All three projects now target `net10.0`:
 - `Autofac.Extensions.DependencyInjection` 10.0.0
 - `Microsoft.AspNetCore.Mvc.NewtonsoftJson` 10.0.0
 - `Newtonsoft.Json` 13.0.3
-- `log4net` 2.0.17 (kept for compatibility; see Next steps)
+- `Microsoft.Extensions.Logging` (via ASP.NET Core transitive dependency — no explicit reference needed)
 
 ---
 
-## Warnings (non-blocking)
+## Warnings Resolved
 
-- `NU1510`: `Microsoft.Extensions.Logging` explicit PackageReference is redundant (already transitive via ASP.NET Core). Can be removed.
-- `NU1902`: `log4net` 2.0.17 has a moderate severity vulnerability — see Next steps.
-- `CS8618/CS8602/CS8603`: Nullable reference warnings in views and model files. Non-blocking; should be addressed in follow-up.
-- `MVC1000`: `Html.Partial` in `Views/Catalog/Index.cshtml` — should be changed to `<partial>` tag helper or `Html.PartialAsync`.
-- `EF1002`: Raw SQL in `CatalogDBInitializer.GetSequenceIdFromSelectedDBSequence` uses string interpolation. Since `dBSequenceName` is an internal constant, this is safe but can be suppressed or refactored to use `SqlQuery` typed form.
+All four NuGet warnings from the initial migration pass have been resolved:
+
+- `NU1510` (`Microsoft.Extensions.Logging` redundant): removed the explicit `<PackageReference>` — already provided transitively.
+- `NU1902` (`log4net` 2.0.17 vulnerability): removed `log4net` entirely. All controllers already used `ILogger<T>` from `Microsoft.Extensions.Logging`. The `[assembly: log4net.Config.XmlConfigurator]` attribute in `AssemblyInfo.cs` was the only remaining reference and has been removed.
 
 ---
 
 ## Next Steps
 
-1. **log4net vulnerability**: `log4net` 2.0.17 has a known moderate severity CVE. Either upgrade to a patched version when available, or migrate to `Microsoft.Extensions.Logging` + Serilog (see `30-logging-migration.md`). The static `LogManager.GetLogger` pattern has already been removed from controllers (now using `ILogger<T>`); `log4net` is only retained in the project file.
-2. **Remove `Microsoft.Extensions.Logging` explicit PackageReference**: It is already provided transitively; the explicit reference can be removed from `eShopLegacyMVC.csproj`.
-3. **Session in layout**: The layout currently uses `Context.Session.GetString("MachineName")` and `Context.Session.GetString("SessionStartTime")`. These session keys were previously set in `Global.asax Session_Start`. Since `Global.asax` is gone, a middleware or `_Layout.cshtml` logic should set them if still needed. Consider moving this to a middleware registered in `Program.cs`.
-4. **Static files**: The `Content/`, `Scripts/`, `Images/`, `Pics/`, and `fonts/` directories need to be served as static files. Either add a symlink/copy to `wwwroot/`, or configure `app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(...) })` for each directory.
-5. **EF Core migrations**: `CatalogDBInitializer.Seed()` calls `context.Database.EnsureCreated()`. For production, EF Core migrations should be created with `dotnet ef migrations add InitialCreate` and managed properly.
-6. **Identity database**: `ApplicationDbContext` for ASP.NET Core Identity needs an initial migration: `dotnet ef migrations add InitialIdentity --context ApplicationDbContext`.
-7. **Nullable warnings**: ~20 CS8618/CS8602/CS8603 warnings can be cleaned up with nullable annotations or null checks.
+1. **Session in layout**: The layout currently uses `Context.Session.GetString("MachineName")` and `Context.Session.GetString("SessionStartTime")`. These session keys were previously set in `Global.asax Session_Start`. Since `Global.asax` is gone, a middleware or `_Layout.cshtml` logic should set them if still needed. Consider moving this to a middleware registered in `Program.cs`.
+2. **Static files**: The `Content/`, `Scripts/`, `Images/`, `Pics/`, and `fonts/` directories need to be served as static files. Either add a symlink/copy to `wwwroot/`, or configure `app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(...) })` for each directory.
+3. **EF Core migrations**: `CatalogDBInitializer.Seed()` calls `context.Database.EnsureCreated()`. For production, EF Core migrations should be created with `dotnet ef migrations add InitialCreate` and managed properly.
+4. **Identity database**: `ApplicationDbContext` for ASP.NET Core Identity needs an initial migration: `dotnet ef migrations add InitialIdentity --context ApplicationDbContext`.
+5. **Nullable annotations**: The `LoginViewModel`, `RegisterViewModel`, and `SessionDemoModel` have non-nullable string properties without initializers (`CS8618`). These can be suppressed with `= string.Empty;` initializers or nullable annotations, matching the target application's null-safety policy.
