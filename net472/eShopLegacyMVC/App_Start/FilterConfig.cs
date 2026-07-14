@@ -1,13 +1,2 @@
-﻿using System.Web;
-using System.Web.Mvc;
-
-namespace eShopLegacyMVC
-{
-    public class FilterConfig
-    {
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
-        {
-            filters.Add(new HandleErrorAttribute());
-        }
-    }
-}
+// This file is kept for reference only.
+// Filter configuration is now done in Program.cs via builder.Services.AddControllersWithViews().
