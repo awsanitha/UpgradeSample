@@ -1,24 +1,28 @@
-﻿@using eShopLegacy.Utilities
+@using eShopLegacy.Utilities
+@inject IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Catalog manager (MVC)</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/custom.css" />
+    <link rel="stylesheet" href="~/Content/base.css" />
+    <link rel="stylesheet" href="~/Content/Site.css" />
+    <script src="~/Scripts/modernizr-2.8.3.js"></script>
 </head>
 <body>
     <header class="navbar navbar-light navbar-static-top">
         <div class="esh-header-brand">
             <a href="@Url.Action("index", "catalog")">
-                <img src="~/images/brand.png" />
+                <img src="~/Images/brand.png" />
             </a>
             <a class="btn esh-button esh-button-primary" href="@Url.Action("index", "AspNetSession")">Session</a>
             <a class="btn esh-button esh-button-primary" href="@Url.Action("index", "UserInfo")">User Info</a>
         </div>
         <div class="esh-header-brand-right">
-            @Html.Partial("_LoginPartial")
+            @await Html.PartialAsync("_LoginPartial")
         </div>
     </header>
     <section class="esh-app-hero">
@@ -33,23 +37,26 @@
         <div class="container">
             <article class="row">
                 <section class="col-sm-6">
-                    <img class="esh-app-footer-brand" src="~/images/brand_dark.png" />
+                    <img class="esh-app-footer-brand" src="~/Images/brand_dark.png" />
                 </section>
                 <section class="col-sm-6">
-                    <img class="esh-app-footer-text hidden-xs" src="~/images/main_footer_text.png" width="335" height="26" alt="footer text image" />
+                    <img class="esh-app-footer-text hidden-xs" src="~/Images/main_footer_text.png" width="335" height="26" alt="footer text image" />
                     <br />
-                    @{ var sessionInfo = new HtmlString($"{HttpContext.Current.Session["MachineName"]}, {HttpContext.Current.Session["SessionStartTime"]}");}
+                    @{
+                        var machineName = HttpContextAccessor.HttpContext?.Session.GetString("MachineName") ?? string.Empty;
+                        var sessionStartTime = HttpContextAccessor.HttpContext?.Session.GetString("SessionStartTime") ?? string.Empty;
+                        var sessionInfo = new Microsoft.AspNetCore.Html.HtmlString($"{machineName}, {sessionStartTime}");
+                    }
                     <small>@sessionInfo</small>
                     <br />
-                    <small>@WebHelper.UserAgent</small>
+                    <small>@(HttpContextAccessor.HttpContext?.Request.Headers["User-Agent"].ToString() ?? string.Empty)</small>
                 </section>
-
             </article>
         </div>
     </footer>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

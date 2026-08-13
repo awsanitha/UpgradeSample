@@ -1,32 +1,8 @@
-﻿using System.Web.Optimization;
-
+// BundleConfig is superseded in ASP.NET Core.
+// Static assets (CSS/JS) are served directly from wwwroot in ASP.NET Core.
+// Bundling can be done with build tools (WebOptimizer, webpack, etc.) if needed.
+// This file is kept as a stub for reference only.
 namespace eShopLegacyMVC
 {
-    public class BundleConfig
-    {
-        // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
-        public static void RegisterBundles(BundleCollection bundles)
-        {
-            bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/Scripts/jquery-{version}.js"));
-
-            bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-                        "~/Scripts/jquery.validate*"));
-
-            // Use the development version of Modernizr to develop with and learn from. Then, when you're
-            // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
-            bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
-                        "~/Scripts/modernizr-*"));
-
-            bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
-                      "~/Scripts/respond.js"));
-
-            bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/custom.css",
-                      "~/Content/base.css",
-                      "~/Content/site.css"));
-        }
-    }
+    // Bundle configuration - static files served directly in ASP.NET Core
 }

@@ -1,14 +1,6 @@
-﻿using Microsoft.Owin;
-using Owin;
-
-[assembly: OwinStartupAttribute(typeof(eShopLegacyMVC.Startup))]
+// Startup.cs - OWIN-based startup has been replaced by Program.cs in ASP.NET Core.
+// This file is kept as a stub for reference only.
 namespace eShopLegacyMVC
 {
-    public partial class Startup
-    {
-        public void Configuration(IAppBuilder app)
-        {
-            ConfigureAuth(app);
-        }
-    }
+    // Startup logic moved to Program.cs
 }
