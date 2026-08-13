@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace eShopLegacy.Models
 {
@@ -8,6 +8,6 @@ namespace eShopLegacy.Models
         public int? IntSessionItem { get; set; }
 
         [Display(Name = "String session item")]
-        public string StringSessionItem { get; set; }
+        public string? StringSessionItem { get; set; }
     }
 }

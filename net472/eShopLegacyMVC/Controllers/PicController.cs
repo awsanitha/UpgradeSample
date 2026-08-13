@@ -1,44 +1,51 @@
-﻿using eShopLegacyMVC.Services;
-using log4net;
+using eShopLegacyMVC.Services;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.IO;
-using System.Net;
-using System.Web.Mvc;
 
 namespace eShopLegacyMVC.Controllers
 {
     public class PicController : Controller
     {
-        private static readonly ILog _log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
+        private readonly ILogger<PicController> _log;
         public const string GetPicRouteName = "GetPicRouteTemplate";
 
-        private ICatalogService service;
+        private readonly ICatalogService service;
+        private readonly IWebHostEnvironment _env;
 
-        public PicController(ICatalogService service)
+        public PicController(ICatalogService service, IWebHostEnvironment env, ILogger<PicController> logger)
         {
             this.service = service;
+            this._env = env;
+            this._log = logger;
         }
 
-        // GET: Pic/5.png
+        // GET: items/{catalogItemId:int}/pic
         [HttpGet]
         [Route("items/{catalogItemId:int}/pic", Name = GetPicRouteName)]
-        public ActionResult Index(int catalogItemId)
+        public IActionResult Index(int catalogItemId)
         {
-            _log.Info($"Now loading... /items/Index?{catalogItemId}/pic");
+            _log.LogInformation($"Now loading... /items/Index?{catalogItemId}/pic");
 
             if (catalogItemId <= 0)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return BadRequest();
             }
 
             var item = service.FindCatalogItem(catalogItemId);
 
             if (item != null)
             {
-                var webRoot = Server.MapPath("~/Pics");
-                var path = Path.Combine(webRoot, item.PictureFileName);
+                var webRoot = _env.ContentRootPath;
+                var path = Path.Combine(webRoot, "Pics", item.PictureFileName ?? string.Empty);
 
-                string imageFileExtension = Path.GetExtension(item.PictureFileName);
+                if (!System.IO.File.Exists(path))
+                {
+                    return NotFound();
+                }
+
+                string imageFileExtension = Path.GetExtension(item.PictureFileName ?? string.Empty);
                 string mimetype = GetImageMimeTypeFromImageFileExtension(imageFileExtension);
 
                 var buffer = System.IO.File.ReadAllBytes(path);
@@ -46,7 +53,7 @@ namespace eShopLegacyMVC.Controllers
                 return File(buffer, mimetype);
             }
 
-            return HttpNotFound();
+            return NotFound();
         }
 
         private string GetImageMimeTypeFromImageFileExtension(string extension)
